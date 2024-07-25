@@ -5,42 +5,26 @@ import Schedule
 import ScheduleUpdateWorker
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.os.Environment
 import android.os.Looper
 import android.util.DisplayMetrics
 import android.view.View
 import android.widget.ImageView
 import android.widget.VideoView
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.graphics.scale
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.example.sits_player_android.ui.theme.SITSPlayerAndroidTheme
 import kotlinx.serialization.json.Json
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
-import java.time.Duration
-import java.util.concurrent.TimeUnit
-
-lateinit var schedule: Schedule
 
 class MainActivity : ComponentActivity() {
     private lateinit var workManager: WorkManager
     private lateinit var schedule: Schedule
-    lateinit var imageViewer: ImageView
-    lateinit var videoViewer: VideoView
-    lateinit var libPath :String
+    private lateinit var imageViewer: ImageView
+    private lateinit var videoViewer: VideoView
+    private lateinit var libPath :String
     private var playlistCounter = 0
     private var mediaCounter = 0
     private var width = 0
@@ -60,7 +44,7 @@ class MainActivity : ComponentActivity() {
         workManager = WorkManager.getInstance(this)
         val workRequest = OneTimeWorkRequestBuilder<ScheduleUpdateWorker>().setInputData(
             workDataOf(
-                ScheduleUpdateWorker.KEY_URL to "http://10.50.10.152:9876",
+                ScheduleUpdateWorker.KEY_URL to "http://10.50.10.231:9876",
                 ScheduleUpdateWorker.KEY_URL_ID to "6659bf4e47b1baaf41343031"
             )
         )
@@ -79,13 +63,16 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+                //TODO: Start AFTER syncing is done.
                 start()
             }
         }
     }
-    fun start() {
 
-            if (mediaCounter == (schedule.playlistList[playlistCounter].mediaList.size)){
+    private fun start() {    //TODO: Change to Media3 Player or ExoPlayer: See: https://www.youtube.com/watch?v=JX1fwti2LI4
+
+
+        if (mediaCounter == (schedule.playlistList[playlistCounter].mediaList.size)){
                 playlistCounter = (playlistCounter + 1) % schedule.playlistList.size
                 mediaCounter = 0
             }
@@ -95,7 +82,7 @@ class MainActivity : ComponentActivity() {
     }
     private fun playNext(){
         val handler = android.os.Handler(Looper.getMainLooper())
-        val currentMedia = schedule.playlistList[playlistCounter].mediaList.get(mediaCounter)
+        val currentMedia = schedule.playlistList[playlistCounter].mediaList[mediaCounter]
         when (currentMedia.filetype) {
             "image" -> {
                 videoViewer.visibility = View.INVISIBLE

@@ -1,4 +1,3 @@
-import com.google.gson.annotations.JsonAdapter
 import kotlinx.serialization.Serializable
 
 @Serializable
